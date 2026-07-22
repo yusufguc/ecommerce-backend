@@ -3,20 +3,19 @@ package com.ecommerce.backend.service.impl;
 import com.ecommerce.backend.dto.request.LoginRequest;
 import com.ecommerce.backend.dto.request.RegisterRequest;
 import com.ecommerce.backend.dto.response.AuthResponse;
+import com.ecommerce.backend.exception.base.BaseException;
+import com.ecommerce.backend.exception.message.MessageType;
 import com.ecommerce.backend.model.User;
 import com.ecommerce.backend.model.enums.Role;
 import com.ecommerce.backend.repository.UserRepository;
 import com.ecommerce.backend.security.JwtService;
 import com.ecommerce.backend.security.UserPrincipal;
 import com.ecommerce.backend.service.AuthService;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -40,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Bu email zaten kayıtlı");
+            throw new BaseException(MessageType.EMAIL_ALREADY_EXISTS);
         }
 
         User user = new User();
@@ -55,16 +54,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-            );
-        } catch (BadCredentialsException ex) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Geçersiz email veya şifre");
-        }
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Geçersiz email veya şifre"));
+                .orElseThrow(() -> new BaseException(MessageType.INVALID_CREDENTIALS));
 
         String token = jwtService.generateToken(new UserPrincipal(user));
         return new AuthResponse(token, user.getEmail(), user.getRole().name());
