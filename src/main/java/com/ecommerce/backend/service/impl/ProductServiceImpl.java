@@ -120,6 +120,11 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.toResponse(product);
     }
 
+    @Override
+    public Product getProductEntity(Long id) {
+        return findProductOrThrow(id);
+    }
+
     private Product findProductOrThrow(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new BaseException(MessageType.PRODUCT_NOT_FOUND));

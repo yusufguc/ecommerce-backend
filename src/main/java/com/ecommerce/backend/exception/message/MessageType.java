@@ -21,7 +21,10 @@ public enum MessageType {
 
     // --- PRODUCT (4000-4999) ---
     PRODUCT_NOT_FOUND("PRD-4000", "Ürün bulunamadı.", HttpStatus.NOT_FOUND),
-    INSUFFICIENT_STOCK("PRD-4001", "Stok miktarı negatif olamaz.", HttpStatus.CONFLICT);
+    INSUFFICIENT_STOCK("PRD-4001", "Stok miktarı negatif olamaz.", HttpStatus.CONFLICT),
+
+    // --- ORDER (5000-5999) ---
+    ORDER_NOT_FOUND("ORD-5000", "Sipariş bulunamadı.", HttpStatus.NOT_FOUND);
 
     private final String code;
     private final String message;

@@ -2,6 +2,7 @@ package com.ecommerce.backend.service;
 
 import com.ecommerce.backend.dto.request.ProductRequest;
 import com.ecommerce.backend.dto.response.ProductResponse;
+import com.ecommerce.backend.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -18,4 +19,6 @@ public interface ProductService {
     void delete(Long id);
 
     ProductResponse adjustStock(Long id, int quantityChange);
+
+    Product getProductEntity(Long id);
 }
