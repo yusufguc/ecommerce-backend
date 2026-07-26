@@ -54,6 +54,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     @Cacheable(cacheNames = PRODUCTS_CACHE, key = "#id")
     public ProductResponse getById(Long id) {
         return productMapper.toResponse(findProductOrThrow(id));
