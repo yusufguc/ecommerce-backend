@@ -3,6 +3,7 @@ package com.ecommerce.backend.service.impl;
 import com.ecommerce.backend.dto.request.OrderItemRequest;
 import com.ecommerce.backend.dto.request.OrderRequest;
 import com.ecommerce.backend.dto.response.OrderResponse;
+import com.ecommerce.backend.event.OrderCreatedEvent;
 import com.ecommerce.backend.exception.base.BaseException;
 import com.ecommerce.backend.exception.message.MessageType;
 import com.ecommerce.backend.mapper.OrderMapper;
@@ -15,12 +16,14 @@ import com.ecommerce.backend.repository.OrderRepository;
 import com.ecommerce.backend.security.UserPrincipal;
 import com.ecommerce.backend.service.OrderService;
 import com.ecommerce.backend.service.ProductService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -28,13 +31,16 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductService productService;
     private final OrderMapper orderMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     public OrderServiceImpl(OrderRepository orderRepository,
                              ProductService productService,
-                             OrderMapper orderMapper) {
+                             OrderMapper orderMapper,
+                             ApplicationEventPublisher eventPublisher) {
         this.orderRepository = orderRepository;
         this.productService = productService;
         this.orderMapper = orderMapper;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -61,7 +67,26 @@ public class OrderServiceImpl implements OrderService {
         order.setTotalAmount(total);
 
         orderRepository.save(order);
+        eventPublisher.publishEvent(toOrderCreatedEvent(order));
         return orderMapper.toResponse(order);
+    }
+
+    private OrderCreatedEvent toOrderCreatedEvent(Order order) {
+        List<OrderCreatedEvent.Item> items = order.getItems().stream()
+                .map(item -> new OrderCreatedEvent.Item(
+                        item.getProduct().getId(),
+                        item.getProductName(),
+                        item.getQuantity(),
+                        item.getUnitPrice()))
+                .toList();
+
+        return new OrderCreatedEvent(
+                order.getId(),
+                order.getUser().getId(),
+                order.getUser().getEmail(),
+                items,
+                order.getTotalAmount(),
+                order.getCreatedAt());
     }
 
     @Override
