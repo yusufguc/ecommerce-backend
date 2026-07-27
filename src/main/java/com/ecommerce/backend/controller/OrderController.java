@@ -5,6 +5,8 @@ import com.ecommerce.backend.dto.request.OrderStatusUpdateRequest;
 import com.ecommerce.backend.dto.response.OrderResponse;
 import com.ecommerce.backend.security.UserPrincipal;
 import com.ecommerce.backend.service.OrderService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/orders")
+@Tag(name = "Order", description = "Sipariş oluşturma ve görüntüleme (tüm uçlar giriş gerektirir)")
 public class OrderController {
 
     private final OrderService orderService;
@@ -44,6 +47,9 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Sipariş detayını getir",
+            description = "ADMIN herhangi bir siparişi görebilir, USER sadece kendi siparişini. " +
+                    "Başkasına ait siparişe erişim denemesi, siparişin var/yok olduğunu sızdırmamak için 403 yerine 404 döner.")
     public ResponseEntity<OrderResponse> getById(@AuthenticationPrincipal UserPrincipal principal,
                                                   @PathVariable Long id) {
         return ResponseEntity.ok(orderService.getById(principal, id));

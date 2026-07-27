@@ -3,6 +3,8 @@ package com.ecommerce.backend.controller;
 import com.ecommerce.backend.dto.request.CategoryRequest;
 import com.ecommerce.backend.dto.response.CategoryResponse;
 import com.ecommerce.backend.service.CategoryService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
+@Tag(name = "Category", description = "Kategori yönetimi (okuma herkese açık, yazma ADMIN)")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -35,11 +38,13 @@ public class CategoryController {
     }
 
     @GetMapping
+    @SecurityRequirements
     public ResponseEntity<List<CategoryResponse>> getAll() {
         return ResponseEntity.ok(categoryService.getAll());
     }
 
     @GetMapping("/{id}")
+    @SecurityRequirements
     public ResponseEntity<CategoryResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(categoryService.getById(id));
     }

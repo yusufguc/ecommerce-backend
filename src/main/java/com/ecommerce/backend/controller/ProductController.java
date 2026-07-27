@@ -4,6 +4,9 @@ import com.ecommerce.backend.dto.request.ProductRequest;
 import com.ecommerce.backend.dto.request.ProductStockUpdateRequest;
 import com.ecommerce.backend.dto.response.ProductResponse;
 import com.ecommerce.backend.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/products")
+@Tag(name = "Product", description = "Ürün yönetimi (okuma herkese açık, yazma ADMIN, stok güncelleme cache'i temizler)")
 public class ProductController {
 
     private final ProductService productService;
@@ -39,6 +43,7 @@ public class ProductController {
     }
 
     @GetMapping
+    @SecurityRequirements
     public ResponseEntity<Page<ProductResponse>> getAll(
             @RequestParam(required = false) Long categoryId,
             @PageableDefault(size = 20, sort = "id") Pageable pageable) {
@@ -46,6 +51,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
+    @SecurityRequirements
     public ResponseEntity<ProductResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(productService.getById(id));
     }
@@ -65,6 +71,7 @@ public class ProductController {
 
     @PatchMapping("/{id}/stock")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Stok artır/azalt", description = "quantityChange negatifse stok azalır; sonuç 0'ın altına düşerse 409 döner.")
     public ResponseEntity<ProductResponse> adjustStock(@PathVariable Long id,
                                                          @Valid @RequestBody ProductStockUpdateRequest request) {
         return ResponseEntity.ok(productService.adjustStock(id, request.getQuantityChange()));
