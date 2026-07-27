@@ -43,4 +43,5 @@ bin/
 
 ### Private (local-only) ###
 ROADMAP.md
-postman/
+postman/*
+!postman/ecommerce-backend.postman_collection.json
