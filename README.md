@@ -84,18 +84,8 @@ cd ecommerce-backend
 cp .env.example .env   # kendi değerlerinizi girin (özellikle JWT_SECRET)
 ```
 
-**Seçenek A — Her şeyi Docker'da çalıştır** (uygulama dahil, en hızlı yol):
-
 ```bash
 docker compose up -d --build
-```
-
-**Seçenek B — Sadece altyapıyı Docker'da çalıştır, uygulamayı IDE'den/Maven'den çalıştır**
-(geliştirme sırasında hızlı yeniden başlatma için tercih edilir):
-
-```bash
-docker compose up -d postgres redis kafka
-./mvnw spring-boot:run -Dspring-boot.run.profiles=local
 ```
 
 Uygulama ayağa kalktığında:
