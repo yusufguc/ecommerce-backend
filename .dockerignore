@@ -1,0 +1,8 @@
+target/
+.git/
+.idea/
+*.iml
+.env
+.env.bak*
+postman/
+ROADMAP.md
