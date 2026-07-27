@@ -117,13 +117,10 @@ Uygulama ayağa kalktığında:
 | PATCH  | `/api/orders/{id}/status`        | Sipariş durumu güncelle                | ✅ ADMIN    |
 
 Tüm endpoint'lerin güncel, interaktif dokümantasyonu için uygulama ayaktayken
-**Swagger UI**'ı (`/swagger-ui/index.html`) kullanın — "Authorize" butonuna
-login'den dönen token'ı girerek korumalı endpoint'leri doğrudan tarayıcıdan deneyebilirsiniz.
+**Swagger UI**'ı (`/swagger-ui/index.html`) kullanın.
 
-## 📸 Ekran Görüntüleri
+
 
 ![Swagger UI](docs/images/swagger-ui.png)
 
-## 📄 Lisans
 
-MIT
