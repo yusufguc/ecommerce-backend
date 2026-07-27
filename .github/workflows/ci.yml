@@ -36,7 +36,7 @@ jobs:
           cache: maven
 
       - name: Start infrastructure (Postgres, Redis, Kafka)
-        run: docker compose up -d --wait --wait-timeout 180
+        run: docker compose up -d --wait --wait-timeout 180 postgres redis kafka
 
       - name: Build and test
         run: ./mvnw -B clean package
