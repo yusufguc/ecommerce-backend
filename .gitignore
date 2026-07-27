@@ -43,5 +43,6 @@ bin/
 
 ### Private (local-only) ###
 ROADMAP.md
+ecommerce-learning.md
 postman/*
 !postman/ecommerce-backend.postman_collection.json
