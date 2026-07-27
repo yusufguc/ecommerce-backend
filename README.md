@@ -69,7 +69,7 @@ durumu izler/bildirir.
 - **PostgreSQL** — ana veritabanı (Spring Data JPA/Hibernate)
 - **Redis** — ürün/ürün listesi cache
 - **Kafka** (KRaft modu) — event-driven sipariş akışı (producer + retry/DLT'li consumer'lar)
-- **Spring Security + JWT** — stateless authentication/authorization
+- **Spring Security + JWT** — stateless authentication/authorization, refresh token rotation, IP bazlı rate limiting (bucket4j)
 - **Docker + Docker Compose** — yerel geliştirme ve tüm servislerin (uygulama dahil) çalıştırılması
 - **GitHub Actions** — push/PR'da otomatik build+test CI pipeline'ı
 - **springdoc-openapi (Swagger UI)** — interaktif API dokümantasyonu
@@ -99,7 +99,9 @@ Uygulama ayağa kalktığında:
 | Method | Endpoint                     | Açıklama                              | Auth        |
 |--------|-------------------------------|----------------------------------------|-------------|
 | POST   | `/api/auth/register`          | Yeni kullanıcı kaydı                  | ❌          |
-| POST   | `/api/auth/login`             | Giriş, JWT üretimi                    | ❌          |
+| POST   | `/api/auth/login`             | Giriş, access+refresh token üretimi   | ❌          |
+| POST   | `/api/auth/refresh`           | Access token'ı yenile (refresh rotation) | ❌       |
+| POST   | `/api/auth/logout`            | Refresh token'ı iptal et              | ❌          |
 | GET    | `/api/categories`              | Kategori listesi                      | ❌          |
 | GET    | `/api/categories/{id}`         | Kategori detayı                       | ❌          |
 | POST   | `/api/categories`               | Kategori oluştur                      | ✅ ADMIN    |

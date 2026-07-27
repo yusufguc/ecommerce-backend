@@ -1,6 +1,7 @@
 package com.ecommerce.backend.controller;
 
 import com.ecommerce.backend.dto.request.LoginRequest;
+import com.ecommerce.backend.dto.request.RefreshTokenRequest;
 import com.ecommerce.backend.dto.request.RegisterRequest;
 import com.ecommerce.backend.dto.response.AuthResponse;
 import com.ecommerce.backend.service.AuthService;
@@ -38,5 +39,22 @@ public class AuthController {
     @Operation(summary = "Giriş yap ve JWT token al", description = "Token gerektirmez.")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/refresh")
+    @SecurityRequirements
+    @Operation(summary = "Access token'ı yenile",
+            description = "Bearer token gerektirmez; geçerli bir refreshToken gönderilir. " +
+                    "Kullanılan refresh token iptal edilir, yeni bir access+refresh token çifti döner (rotation).")
+    public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(authService.refresh(request));
+    }
+
+    @PostMapping("/logout")
+    @SecurityRequirements
+    @Operation(summary = "Refresh token'ı iptal et", description = "Token gerektirmez; sadece refreshToken gönderilir.")
+    public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest request) {
+        authService.logout(request);
+        return ResponseEntity.noContent().build();
     }
 }
