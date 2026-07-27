@@ -1,5 +1,6 @@
-package com.ecommerce.backend.dto.response;
+package com.ecommerce.backend.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,10 +10,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthResponse {
+public class RefreshTokenRequest {
 
-    private String token;
+    @NotBlank
     private String refreshToken;
-    private String email;
-    private String role;
 }
