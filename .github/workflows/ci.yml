@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    env:
+      POSTGRES_DB: ecommerce
+      POSTGRES_USER: ecommerce
+      POSTGRES_PASSWORD: ecommerce
+      POSTGRES_PORT: 5432
+      DB_NAME: ecommerce
+      DB_USERNAME: ecommerce
+      DB_PASSWORD: ecommerce
+      DB_PORT: 5432
+      REDIS_PORT: 6380
+      KAFKA_PORT: 9092
+      JWT_SECRET: ci-only-secret-key-please-do-not-use-in-production-1234567890
+      JWT_EXPIRATION_MS: 86400000
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Start infrastructure (Postgres, Redis, Kafka)
+        run: docker compose up -d --wait --wait-timeout 180
+
+      - name: Build and test
+        run: ./mvnw -B clean package
+
+      - name: Stop infrastructure
+        if: always()
+        run: docker compose down -v
