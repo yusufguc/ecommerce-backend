@@ -9,11 +9,13 @@ public enum MessageType {
     // --- GENERAL & VALIDATION (1000-1999) ---
     GENERAL_EXCEPTION("GEN-1000", "Beklenmeyen bir hata oluştu.", HttpStatus.INTERNAL_SERVER_ERROR),
     VALIDATION_EXCEPTION("GEN-1001", "Doğrulama hatası.", HttpStatus.BAD_REQUEST),
+    TOO_MANY_REQUESTS("GEN-1002", "Çok fazla istek gönderildi, lütfen bir dakika sonra tekrar deneyin.", HttpStatus.TOO_MANY_REQUESTS),
 
     // --- AUTH & USER (2000-2999) ---
     EMAIL_ALREADY_EXISTS("USR-2000", "Bu email zaten kayıtlı.", HttpStatus.CONFLICT),
     INVALID_CREDENTIALS("USR-2001", "Geçersiz email veya şifre.", HttpStatus.UNAUTHORIZED),
     ACCESS_DENIED("USR-2002", "Bu işlem için yetkin yok.", HttpStatus.FORBIDDEN),
+    INVALID_REFRESH_TOKEN("USR-2003", "Geçersiz veya süresi dolmuş refresh token.", HttpStatus.UNAUTHORIZED),
 
     // --- CATEGORY (3000-3999) ---
     CATEGORY_NOT_FOUND("CAT-3000", "Kategori bulunamadı.", HttpStatus.NOT_FOUND),

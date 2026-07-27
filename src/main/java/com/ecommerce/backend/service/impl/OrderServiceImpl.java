@@ -90,11 +90,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public OrderResponse getById(UserPrincipal principal, Long id) {
         return orderMapper.toResponse(findOwnedOrderOrThrow(principal, id));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<OrderResponse> getMyOrders(UserPrincipal principal, Pageable pageable) {
         return orderRepository.findByUserId(principal.getUser().getId(), pageable)
                 .map(orderMapper::toResponse);
