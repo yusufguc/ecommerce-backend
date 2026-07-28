@@ -1,7 +1,10 @@
 # 🛒 ecommerce-backend
 
-> Event-driven, production-kalitesinde bir e-ticaret backend'i. Sipariş akışı Kafka
-> üzerinden yönetilir; ürün listeleri Redis ile cache'lenir; kimlik doğrulama JWT ile yapılır.
+> Kafka, Redis ve Docker'ı öğrenmek amacıyla sıfırdan geliştirdiğim, event-driven bir
+> e-ticaret backend'i. Sipariş akışı Kafka üzerinden yönetilir; ürün listeleri Redis
+> ile cache'lenir; kimlik doğrulama JWT ile yapılır. Her konuyu (Docker Compose'dan
+> Kafka consumer'lara) önce öğrenip sonra uygulayarak, gerçek bir Docker Compose
+> stack'ine karşı adım adım test ede ede ilerledim.
 
 [![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-brightgreen?logo=springboot)](https://spring.io/projects/spring-boot)
@@ -21,6 +24,11 @@ sipariş sonrası asenkron iş akışlarını (düşük stok izleme, sipariş bi
 event-driven bir mimariyle yöneten bir REST API'dir. Sipariş oluşturulduğunda
 veritabanı transaction'ı gerçekten commit olduktan sonra bir Kafka event'i
 fırlatılır; iki bağımsız consumer bu event'i kendi tüketici grubuyla okur.
+
+Bu proje bir öğrenme sürecinin ürünü: Kafka'yı, Redis'i, Docker'ı bu proje
+üzerinden öğrendim. Bu yüzden sadece "çalışıyor" değil, süreç boyunca bulup
+düzelttiğim gerçek sorunları da (N+1 query, cache/consumer group hataları,
+eksik ortam değişkenleri) bilerek gizlemedim — hepsi commit geçmişinde duruyor.
 
 ## 🏗️ Mimari
 
