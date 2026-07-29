@@ -1,5 +1,7 @@
 # 🛒 ecommerce-backend
 
+![Mimari Diyagram](docs/images/architecture.png)
+
 > Kafka, Redis ve Docker'ı öğrenmek amacıyla sıfırdan geliştirdiğim, event-driven bir
 > e-ticaret backend'i. Sipariş akışı Kafka üzerinden yönetilir; ürün listeleri Redis
 > ile cache'lenir; kimlik doğrulama JWT ile yapılır. Her konuyu (Docker Compose'dan
@@ -31,41 +33,6 @@ düzelttiğim gerçek sorunları da (N+1 query, cache/consumer group hataları,
 eksik ortam değişkenleri) bilerek gizlemedim — hepsi commit geçmişinde duruyor.
 
 ## 🏗️ Mimari
-
-```
-                     ┌──────────────┐
-                     │    Client    │
-                     └──────┬───────┘
-                            │ REST (JWT)
-                            ▼
-                  ┌───────────────────┐
-                  │   Spring Boot API │
-                  │ (Auth/Category/   │
-                  │  Product/Order)   │
-                  └───┬───────┬───────┘
-                      │       │
-           ┌──────────┘       └──────────┐
-           ▼                             ▼
-   ┌───────────────┐             ┌───────────────┐
-   │  PostgreSQL    │             │     Redis      │
-   │ (kalıcı veri)  │             │  (ürün cache)  │
-   └───────────────┘             └───────────────┘
-           │
-           │ commit sonrası: OrderCreatedEvent
-           ▼
-   ┌───────────────────┐
-   │       Kafka        │
-   │   (order-events)   │
-   └──────┬─────┬───────┘
-          │     │
-          ▼     ▼
-   ┌──────────────┐ ┌──────────────┐
-   │ StockMonitor  │ │ Notification  │
-   │  Consumer     │ │  Consumer     │
-   │ (düşük stok   │ │ (sipariş      │
-   │  uyarısı)     │ │  onay logu)   │
-   └──────────────┘ └──────────────┘
-```
 
 Sipariş anındaki stok düşümü **senkron** yapılır (kullanıcı yetersiz stok bilgisini
 anında almalı); Kafka consumer'ları stoğa dokunmaz, yalnızca sipariş sonrası
