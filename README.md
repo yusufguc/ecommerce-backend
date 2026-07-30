@@ -32,12 +32,6 @@ Bu proje bir öğrenme sürecinin ürünü: Kafka'yı, Redis'i, Docker'ı bu pro
 düzelttiğim gerçek sorunları da (N+1 query, cache/consumer group hataları,
 eksik ortam değişkenleri) bilerek gizlemedim — hepsi commit geçmişinde duruyor.
 
-## 🏗️ Mimari
-
-Sipariş anındaki stok düşümü **senkron** yapılır (kullanıcı yetersiz stok bilgisini
-anında almalı); Kafka consumer'ları stoğa dokunmaz, yalnızca sipariş sonrası
-durumu izler/bildirir.
-
 ## 🧰 Teknolojiler
 
 - **Java 21** + **Spring Boot 4.1** — uygulama çatısı
