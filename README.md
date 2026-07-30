@@ -90,8 +90,4 @@ Uygulama ayağa kalktığında:
 Tüm endpoint'lerin güncel, interaktif dokümantasyonu için uygulama ayaktayken
 **Swagger UI**'ı (`/swagger-ui/index.html`) kullanın.
 
-
-
 ![Swagger UI](docs/images/swagger-ui.png)
-
-
