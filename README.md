@@ -1,12 +1,13 @@
 # 🛒 ecommerce-backend
 
-![Mimari Diyagram](docs/images/architecture.png)
+![Architecture Diagram](docs/images/architecture.png)
 
-> Kafka, Redis ve Docker'ı öğrenmek amacıyla sıfırdan geliştirdiğim, event-driven bir
-> e-ticaret backend'i. Sipariş akışı Kafka üzerinden yönetilir; ürün listeleri Redis
-> ile cache'lenir; kimlik doğrulama JWT ile yapılır. Her konuyu (Docker Compose'dan
-> Kafka consumer'lara) önce öğrenip sonra uygulayarak, gerçek bir Docker Compose
-> stack'ine karşı adım adım test ede ede ilerledim.
+> An event-driven e-commerce backend built from scratch to learn Kafka, Redis,
+> and Docker. The order flow is managed via Kafka; product listings are
+> cached with Redis; authentication is handled with JWT. I worked through
+> each topic (from Docker Compose to Kafka consumers) by learning it first
+> and then applying it, testing step by step against a real Docker Compose
+> stack.
 
 [![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-brightgreen?logo=springboot)](https://spring.io/projects/spring-boot)
@@ -19,45 +20,47 @@
 
 ---
 
-## 📖 Ne Yapıyor?
+## 📖 What Does It Do?
 
-`ecommerce-backend`, kullanıcı kaydı/girişi, ürün kataloğu, sipariş oluşturma ve
-sipariş sonrası asenkron iş akışlarını (düşük stok izleme, sipariş bildirimi)
-event-driven bir mimariyle yöneten bir REST API'dir. Sipariş oluşturulduğunda
-veritabanı transaction'ı gerçekten commit olduktan sonra bir Kafka event'i
-fırlatılır; iki bağımsız consumer bu event'i kendi tüketici grubuyla okur.
+`ecommerce-backend` is a REST API that manages user registration/login,
+product catalog, order creation, and the asynchronous post-order workflows
+(low-stock monitoring, order notifications) through an event-driven
+architecture. When an order is created, a Kafka event is fired only after
+the database transaction actually commits; two independent consumers read
+this event, each with its own consumer group.
 
-Bu proje bir öğrenme sürecinin ürünü: Kafka'yı, Redis'i, Docker'ı bu proje
-üzerinden öğrendim. Bu yüzden sadece "çalışıyor" değil, süreç boyunca bulup
-düzelttiğim gerçek sorunları da (N+1 query, cache/consumer group hataları,
-eksik ortam değişkenleri) bilerek gizlemedim — hepsi commit geçmişinde duruyor.
+This project is the product of a learning process: I learned Kafka, Redis,
+and Docker through building it. So it's not just "it works" — the real
+issues I found and fixed along the way (N+1 queries, cache/consumer group
+bugs, missing environment variables) haven't been deliberately hidden either
+— they're all still in the commit history.
 
-## 🧰 Teknolojiler
+## 🧰 Technologies
 
-- **Java 21** + **Spring Boot 4.1** — uygulama çatısı
-- **PostgreSQL** — ana veritabanı (Spring Data JPA/Hibernate)
-- **Redis** — ürün/ürün listesi cache
-- **Kafka** (KRaft modu) — event-driven sipariş akışı (producer + retry/DLT'li consumer'lar)
-- **Spring Security + JWT** — stateless authentication/authorization, refresh token rotation, IP bazlı rate limiting (bucket4j)
-- **Docker + Docker Compose** — yerel geliştirme ve tüm servislerin (uygulama dahil) çalıştırılması
-- **GitHub Actions** — push/PR'da otomatik build+test CI pipeline'ı
-- **springdoc-openapi (Swagger UI)** — interaktif API dokümantasyonu
-- **Spring Boot Actuator** — `/actuator/health` health check endpoint'i
-- **MapStruct + Lombok** — DTO mapping ve boilerplate azaltma
+- **Java 21** + **Spring Boot 4.1** — application framework
+- **PostgreSQL** — primary database (Spring Data JPA/Hibernate)
+- **Redis** — product/product list cache
+- **Kafka** (KRaft mode) — event-driven order flow (producer + consumers with retry/DLT)
+- **Spring Security + JWT** — stateless authentication/authorization, refresh token rotation, IP-based rate limiting (bucket4j)
+- **Docker + Docker Compose** — local development and running all services (including the app)
+- **GitHub Actions** — automated build+test CI pipeline on push/PR
+- **springdoc-openapi (Swagger UI)** — interactive API documentation
+- **Spring Boot Actuator** — `/actuator/health` health check endpoint
+- **MapStruct + Lombok** — DTO mapping and boilerplate reduction
 
-## 🚀 Kurulum
+## 🚀 Setup
 
 ```bash
 git clone https://github.com/yusufguc/ecommerce-backend.git
 cd ecommerce-backend
-cp .env.example .env   # kendi değerlerinizi girin (özellikle JWT_SECRET)
+cp .env.example .env   # fill in your own values (especially JWT_SECRET)
 ```
 
 ```bash
 docker compose up -d --build
 ```
 
-Uygulama ayağa kalktığında:
+Once the application is up:
 - API: `http://localhost:8080`
 - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
 - Health check: `http://localhost:8080/actuator/health`
@@ -65,29 +68,29 @@ Uygulama ayağa kalktığında:
 
 ## 📡 API Endpoints
 
-| Method | Endpoint                     | Açıklama                              | Auth        |
+| Method | Endpoint                     | Description                            | Auth        |
 |--------|-------------------------------|----------------------------------------|-------------|
-| POST   | `/api/auth/register`          | Yeni kullanıcı kaydı                  | ❌          |
-| POST   | `/api/auth/login`             | Giriş, access+refresh token üretimi   | ❌          |
-| POST   | `/api/auth/refresh`           | Access token'ı yenile (refresh rotation) | ❌       |
-| POST   | `/api/auth/logout`            | Refresh token'ı iptal et              | ❌          |
-| GET    | `/api/categories`              | Kategori listesi                      | ❌          |
-| GET    | `/api/categories/{id}`         | Kategori detayı                       | ❌          |
-| POST   | `/api/categories`               | Kategori oluştur                      | ✅ ADMIN    |
-| PUT    | `/api/categories/{id}`          | Kategori güncelle                     | ✅ ADMIN    |
-| DELETE | `/api/categories/{id}`          | Kategori sil                          | ✅ ADMIN    |
-| GET    | `/api/products`                | Ürün listesi (sayfalı, filtreli, cache'li) | ❌     |
-| GET    | `/api/products/{id}`           | Ürün detayı (cache'li)                | ❌          |
-| POST   | `/api/products`                 | Ürün oluştur                          | ✅ ADMIN    |
-| PUT    | `/api/products/{id}`            | Ürün güncelle                         | ✅ ADMIN    |
-| DELETE | `/api/products/{id}`            | Ürün sil                              | ✅ ADMIN    |
-| PATCH  | `/api/products/{id}/stock`      | Stok artır/azalt                      | ✅ ADMIN    |
-| POST   | `/api/orders`                   | Sipariş oluştur (stok kontrolü + Kafka event) | ✅  |
-| GET    | `/api/orders`                   | Kendi siparişlerim (sayfalı)           | ✅          |
-| GET    | `/api/orders/{id}`              | Sipariş detayı (sahiplik kontrollü)    | ✅          |
-| PATCH  | `/api/orders/{id}/status`        | Sipariş durumu güncelle                | ✅ ADMIN    |
+| POST   | `/api/auth/register`          | Register a new user                   | ❌          |
+| POST   | `/api/auth/login`             | Log in, issue access+refresh tokens   | ❌          |
+| POST   | `/api/auth/refresh`           | Refresh the access token (refresh rotation) | ❌       |
+| POST   | `/api/auth/logout`            | Revoke the refresh token              | ❌          |
+| GET    | `/api/categories`              | List categories                       | ❌          |
+| GET    | `/api/categories/{id}`         | Category detail                       | ❌          |
+| POST   | `/api/categories`               | Create category                       | ✅ ADMIN    |
+| PUT    | `/api/categories/{id}`          | Update category                       | ✅ ADMIN    |
+| DELETE | `/api/categories/{id}`          | Delete category                       | ✅ ADMIN    |
+| GET    | `/api/products`                | List products (paginated, filterable, cached) | ❌     |
+| GET    | `/api/products/{id}`           | Product detail (cached)               | ❌          |
+| POST   | `/api/products`                 | Create product                        | ✅ ADMIN    |
+| PUT    | `/api/products/{id}`            | Update product                        | ✅ ADMIN    |
+| DELETE | `/api/products/{id}`            | Delete product                        | ✅ ADMIN    |
+| PATCH  | `/api/products/{id}/stock`      | Increase/decrease stock               | ✅ ADMIN    |
+| POST   | `/api/orders`                   | Create order (stock check + Kafka event) | ✅  |
+| GET    | `/api/orders`                   | My own orders (paginated)              | ✅          |
+| GET    | `/api/orders/{id}`              | Order detail (ownership-checked)       | ✅          |
+| PATCH  | `/api/orders/{id}/status`        | Update order status                    | ✅ ADMIN    |
 
-Tüm endpoint'lerin güncel, interaktif dokümantasyonu için uygulama ayaktayken
-**Swagger UI**'ı (`/swagger-ui/index.html`) kullanın.
+For up-to-date, interactive documentation of all endpoints, use
+**Swagger UI** (`/swagger-ui/index.html`) while the app is running.
 
 ![Swagger UI](docs/images/swagger-ui.png)
